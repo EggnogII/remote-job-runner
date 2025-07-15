@@ -1,0 +1,8 @@
+POST http://localhost:80/jobs
+content-type:application/json
+
+{
+    "id": 2,
+    "command": "pwd",
+    "status": "queued"
+}
