@@ -1,13 +1,9 @@
+import sys
 from flask import Flask, jsonify, request
-
+from api.model.job import Job, Language, JobStatus
 app = Flask(__name__)
 
-jobs = [
-    {   'id': "1",
-        'command': 'ls',
-        'status': 'queued'
-    }
-]
+jobs = []
 
 @app.route("/")
 def ping():
@@ -15,7 +11,8 @@ def ping():
 
 @app.route("/jobs", methods=['POST'])
 def submit_command():
-    jobs.append(request.get_json())
+    new_job = Job.to_dict(None,job_details=request.get_json())
+    jobs.append(new_job)
     return '', 200
 
 @app.route("/jobs")
