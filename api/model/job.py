@@ -20,7 +20,7 @@ class Job(object):
         self.script = script
         self.retries = retries
 
-        self.id = uuid.uuid4()
+        self.id = uuid.uuid4().hex
         self.status = JobStatus.QUEUED
         self.created_at = datetime.datetime.now()
         self.started_at = None
@@ -33,9 +33,26 @@ class Job(object):
     def run(self):
         raise NotImplementedError()
     
-    def to_dict(self, job_details):
+    def to_request(self, job_details):
         job_language = job_details["language"]
         job_script = job_details["script"]
         job_retries = job_details["retries"]
         return Job(job_language, job_script, job_retries)
+    
+    def to_dict(self):
+        dictionary_to_return = {
+            "id": str(self.id),
+            "language": self.language,
+            "script": self.script,
+            "retries": self.retries,
+            "status": self.status.name,
+            "created_at": str(self.created_at),
+            "started_at": str(self.started_at),
+            "finished_at": str(self.finished_at),
+            "exit_code": self.exit_code,
+            "stdout": self.stdout,
+            "stderr": self.stderr
+        }
+
+        return dictionary_to_return
     
