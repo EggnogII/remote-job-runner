@@ -2,6 +2,7 @@ import uuid
 import datetime
 import json
 from enum import Enum
+from abc import ABC, abstractmethod
 
 class JobStatus(Enum):
     QUEUED = 1
@@ -14,7 +15,7 @@ class Language(Enum):
     PYTHON = 1
     BASH = 2
 
-class Job(object):
+class Job(ABC):
     def __init__(self, language, script, retries):
         self.language = language
         self.script = script
@@ -30,8 +31,9 @@ class Job(object):
         self.stderr = ""
         self.timeout = 60 
 
+    @abstractmethod
     def run(self):
-        raise NotImplementedError()
+        pass
     
     def to_request(self, job_details):
         job_language = job_details["language"]
