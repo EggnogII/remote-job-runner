@@ -1,7 +1,7 @@
 import redis
 import json
 from flask import Flask, jsonify, request
-from model.job import Language, JobStatus, to_request, BashJob
+from model.job import Language, JobStatus, to_request, to_job, BashJob
 
 app = Flask(__name__)
 
@@ -25,6 +25,16 @@ def get_job(job_id):
     job_raw_data = redis_client.get(key)
     job_data = json.loads(job_raw_data)
     return jsonify(job_data), 200
+
+@app.route("/execute/<job_id>", methods=['GET'])
+def execute_job(job_id):
+    return_code = 404
+    key = job_id
+    job_raw_data = redis_client.get(key)
+    job_data = json.loads(job_raw_data)
+    dummy, return_code = to_job(job_data)
+    return 200
+    
 
 @app.route("/jobs")
 def get_command_list():
