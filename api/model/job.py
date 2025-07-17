@@ -15,6 +15,16 @@ class Language(Enum):
     PYTHON = 1
     BASH = 2
 
+def to_request(job_details):
+        job_language = str(job_details["language"])
+        job_script = job_details["script"]
+        job_retries = job_details["retries"]
+        uppercase_job_language = job_language.upper()
+        if uppercase_job_language == Language.BASH.name:
+            return BashJob(job_language, job_script, job_retries)
+
+        
+
 class Job(ABC):
     def __init__(self, language, script, retries):
         self.language = language
@@ -35,12 +45,6 @@ class Job(ABC):
     def run(self):
         pass
     
-    def to_request(self, job_details):
-        job_language = job_details["language"]
-        job_script = job_details["script"]
-        job_retries = job_details["retries"]
-        return Job(job_language, job_script, job_retries)
-    
     def to_dict(self):
         dictionary_to_return = {
             "id": str(self.id),
@@ -58,3 +62,37 @@ class Job(ABC):
 
         return dictionary_to_return
     
+class BashJob(Job):
+    def __init__(self, language, script, retries):
+        super().__init__(language, script, retries)
+
+    def run(self):
+        self.status = JobStatus.IN_PROGRESS
+        self.started_at = datetime.datetime.now()
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.sh', delete=False) as temp:
+            temp.write(self.script)
+            temp.flush()
+            filename = temp.name
+        
+        try:
+            result = subprocess.run(
+                ["bash", filename],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=self.timeout
+            )
+            self.stdout = result.stdout.decode()
+            self.stderr = result.stderr.decode()
+            self.exit_code = result.returncode
+            if result.returncode == 0:
+                self.status = JobStatus.COMPLETE
+            else:
+                self.status = JobStatus.ERROR
+        except subprocess.TimeoutExpired as timeout_expired:
+            self.stderr = str(timeout_expired)
+            self.status = JobStatus.TIMEOUT
+            self.exit_code = -1
+        finally:
+            self.finished_at = datetime.datetime.now()
+            os.remove(filename)
