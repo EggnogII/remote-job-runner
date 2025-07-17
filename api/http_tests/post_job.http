@@ -2,7 +2,7 @@ POST http://localhost:80/jobs
 content-type:application/json
 
 {
-    "language": "python",
+    "language": "bash",
     "script": "pwd",
     "retries": 2
 }
