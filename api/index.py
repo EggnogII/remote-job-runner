@@ -1,7 +1,8 @@
 import redis
 import json
 from flask import Flask, jsonify, request
-from model.job import Job, Language, JobStatus
+from model.job import Language, JobStatus, to_request, BashJob
+
 app = Flask(__name__)
 
 jobs = []
@@ -13,10 +14,10 @@ def ping():
 
 @app.route("/jobs", methods=['POST'])
 def submit_command():
-    new_job = Job.to_request(None,job_details=request.get_json())
+    new_job = to_request(job_details=request.get_json())
     jobs.append(new_job)
     redis_client.set(f"{new_job.id}", json.dumps(new_job.to_dict()))
-    return 'created', 200
+    return f'created: {new_job.id}', 200
 
 @app.route("/job/<job_id>", methods=['GET'])
 def get_job(job_id):
