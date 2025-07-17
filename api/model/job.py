@@ -23,7 +23,19 @@ def to_request(job_details):
         if uppercase_job_language == Language.BASH.name:
             return BashJob(job_language, job_script, job_retries)
 
-        
+def to_job(job_details):
+    job_id = job_details['id']
+    job_language = job_details['language'].upper()
+    job_script = job_details['script']
+    job_retries = job_details['retries']
+    try:
+        job_status = JobStatus[job_details['status']]
+    except k as KeyError:
+        return None, 500
+    date_time_format = "%Y-%m-%d %H:%M:%S.%f"
+    job_creation_time = datetime.datetime.strptime(job_details['created_at'], date_time_format)
+    print()
+    return None, 200      
 
 class Job(ABC):
     def __init__(self, language, script, retries):
