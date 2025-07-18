@@ -34,7 +34,20 @@ def to_job(job_details):
         return None, 500
     date_time_format = "%Y-%m-%d %H:%M:%S.%f"
     job_creation_time = datetime.datetime.strptime(job_details['created_at'], date_time_format)
+    if job_details['started_at'] == 'None':
+        job_started_at = None
+    else:
+        job_started_at = datetime.datetime.strptime(job_details['started_at'], date_time_format)
+    if job_details['finished_at'] == 'None':
+        job_finished_at = None
+    else:
+        job_finished_at = datetime.datetime.strptime(job_details['finished_at'], date_time_format)
+    job_exit_code = job_details['exit_code']
+    job_stdout = job_details['stdout']
+    job_stderr = job_details['stderr']
     print()
+    
+
     return None, 200      
 
 class Job(ABC):
