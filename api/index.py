@@ -66,7 +66,13 @@ def execute_job(job_id):
 
 @app.route("/status/<job_id>", methods=['GET'])
 def get_job_status(job_id):
-    pass
+    job_raw_data = redis_client.get(job_id)
+    if not job_raw_data:
+        return f'not found: {job_id}', 404
+
+    job_data = json.loads(job_raw_data)
+    status = job_data.get('status')
+    return f'{status}', 200
     # Need to implement getting the status of a given job in redis
     
 # Add Delete Job Function too
