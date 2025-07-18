@@ -13,6 +13,7 @@ def ping():
     return 'I am alive', 200
 
 # More context would be nice but w/e
+# Remember to add return code
 @app.route("/jobs")
 def get_jobs():
     keys = redis_client.keys()
@@ -25,6 +26,7 @@ def get_jobs():
     
     return f'{return_dict}', 200
 
+# Remember to add return code
 @app.route("/job/<job_id>", methods=['GET'])
 def get_job(job_id):
     key = job_id
@@ -32,6 +34,7 @@ def get_job(job_id):
     job_data = json.loads(job_raw_data)
     return jsonify(job_data), 200
 
+# Remember to add return code
 @app.route("/jobs", methods=['POST'])
 def add_job():
     new_job = to_request(job_details=request.get_json())
@@ -40,6 +43,7 @@ def add_job():
     return f'created: {new_job.id}', 200
 
 # Add handling for if you don't find the job, e.g. 404
+# Remember to add return code
 @app.route("/execute/<job_id>", methods=['GET'])
 def execute_job(job_id):
     return_code = 404
@@ -61,8 +65,9 @@ def execute_job(job_id):
 @app.route("/status/<job_id>", methods=['GET'])
 def get_job_status(job_id):
     pass
+    # Need to implement getting the status of a given job in redis
     
-
+# Add Delete Job Function too
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
