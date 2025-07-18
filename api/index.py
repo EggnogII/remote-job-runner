@@ -32,16 +32,27 @@ def execute_job(job_id):
     key = job_id
     job_raw_data = redis_client.get(key)
     job_data = json.loads(job_raw_data)
-    dummy, return_code = to_job(job_data)
-    return 200
+    job_obj, return_code = to_job(job_data)
+    state = job_obj.run()
+    if state == JobStatus.COMPLETE:
+        return f'completed: {job_obj.id}', 200
+    elif state == JobStatus.IN_PROGRESS:
+        return f'started: {job_obj.id}', 200
+    else:
+        return f'{state.name}, ID: {job_obj.id}', 200
     
-
+# More context would be nice but w/e
 @app.route("/jobs")
 def get_command_list():
-    job_id_list = []
-    for job in jobs:
-        job_id_list.append(job.id)
-    return f'{job_id_list}', 200
+    keys = redis_client.keys()
+    return_dict = {}
+    for key in keys:
+        job_raw_data = redis_client.get(key)
+        job_data = json.loads(job_raw_data)
+        job_obj, return_code = to_job(job_data)
+        return_dict[job_obj.id] = job_obj.script
+    
+    return f'{return_dict}', 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
