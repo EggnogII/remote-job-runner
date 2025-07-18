@@ -13,7 +13,7 @@ def ping():
     return "I am alive!"
 
 @app.route("/jobs", methods=['POST'])
-def submit_command():
+def add_job():
     new_job = to_request(job_details=request.get_json())
     jobs.append(new_job)
     redis_client.set(f"{new_job.id}", json.dumps(new_job.to_dict()))
