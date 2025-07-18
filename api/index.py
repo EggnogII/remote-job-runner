@@ -8,6 +8,8 @@ app = Flask(__name__)
 jobs = []
 redis_client = redis.Redis()
 
+# Make sure you don't forget, this needs to work with a worker agent, and needs logging functionality
+
 @app.route("/")
 def ping():
     return 'I am alive', 200
