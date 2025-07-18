@@ -73,8 +73,17 @@ def get_job_status(job_id):
     job_data = json.loads(job_raw_data)
     status = job_data.get('status')
     return f'{status}', 200
-    
-# Add Delete Job Function too
+
+
+# Delete a job from redis
+@app.route("/job/<job_id>", methods=['DELETE'])
+def delete_job(job_id):
+    """Remove the job with the given ID from the data store."""
+    deleted = redis_client.delete(job_id)
+    if deleted:
+        return f'deleted: {job_id}', 200
+    return f'not found: {job_id}', 404
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
