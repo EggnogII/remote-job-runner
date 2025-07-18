@@ -1,6 +1,9 @@
 import uuid
 import datetime
 import json
+import tempfile
+import os
+import subprocess
 from enum import Enum
 from abc import ABC, abstractmethod
 
@@ -45,10 +48,14 @@ def to_job(job_details):
     job_exit_code = job_details['exit_code']
     job_stdout = job_details['stdout']
     job_stderr = job_details['stderr']
-    print()
-    
+    return_job = None
+    if job_language == Language.BASH.name:
+        bash_job = BashJob(job_id, job_language, job_script, job_retries, job_status, job_creation_time, job_started_at, job_finished_at, job_exit_code, job_stdout, job_stderr)
+        return_job = bash_job
+    elif job_language == Language.PYTHON.name:
+        return_job = PythonJob(job_id, job_language, job_script, job_retries, job_status, job_creation_time, job_started_at, job_finished_at, job_exit_code, job_stdout, job_stderr)
 
-    return None, 200      
+    return return_job, 200      
 
 class Job(ABC):
     def __init__(self, language, script, retries):
@@ -65,6 +72,20 @@ class Job(ABC):
         self.stdout = ""
         self.stderr = ""
         self.timeout = 60 
+    
+    def __init__(self, id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr):
+        self.id = id
+        self.language = language
+        self.script = script
+        self.retries = retries
+        self.status = status
+        self.created_at = creation_time
+        self.started_at = start_time
+        self.finished_at = end_time,
+        self.exit_code = exit_code
+        self.stdout = stdout
+        self.stderr = stderr
+        self.timeout = 60
 
     @abstractmethod
     def run(self):
@@ -86,12 +107,25 @@ class Job(ABC):
         }
 
         return dictionary_to_return
+class PythonJob(Job):
+    def __init__(self, language, script, retries):
+        super().__init__(language, script, retries)
+    def __init__(self, id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr):
+        super().__init__(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
     
+    def run(self):
+        pass
+    
+
 class BashJob(Job):
     def __init__(self, language, script, retries):
         super().__init__(language, script, retries)
+    def __init__(self, id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr):
+        super().__init__(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
 
     def run(self):
+        if self.status == JobStatus.COMPLETE:
+            return self.status
         self.status = JobStatus.IN_PROGRESS
         self.started_at = datetime.datetime.now()
 
@@ -121,3 +155,4 @@ class BashJob(Job):
         finally:
             self.finished_at = datetime.datetime.now()
             os.remove(filename)
+        return self.status
