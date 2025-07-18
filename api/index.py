@@ -43,7 +43,7 @@ def execute_job(job_id):
     
 # More context would be nice but w/e
 @app.route("/jobs")
-def get_command_list():
+def get_jobs():
     keys = redis_client.keys()
     return_dict = {}
     for key in keys:
