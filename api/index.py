@@ -73,7 +73,6 @@ def get_job_status(job_id):
     job_data = json.loads(job_raw_data)
     status = job_data.get('status')
     return f'{status}', 200
-    # Need to implement getting the status of a given job in redis
     
 # Add Delete Job Function too
 
