@@ -3,6 +3,6 @@ content-type:application/json
 
 {
     "language": "bash",
-    "script": "pwd",
+    "script": "echo 'hello world'",
     "retries": 2
 }
