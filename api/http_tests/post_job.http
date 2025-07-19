@@ -2,7 +2,7 @@ POST http://localhost:80/jobs
 content-type:application/json
 
 {
-    "language": "bash",
-    "script": "echo 'hello world'",
+    "language": "python",
+    "script": "print('hello world')",
     "retries": 2
 }
