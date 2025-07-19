@@ -120,9 +120,38 @@ class PythonJob(Job):
         super().__init__(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
     
     def run(self):
-        pass
-    
+        if is_complete:
+            return self.status
+        self.status = JobStatus.IN_PROGRESS
+        self.started_at = datetime.datetime.now()
 
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp:
+            temp.write(self.script)
+            temp.flush()
+            filename = temp.name
+        
+        try:
+            result = subprocess.run(
+                ["python3", filename],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=self.timeout
+            )
+        except subprocess.TimeoutExpired as timeout_expired:
+            self.stderr = str(timeout_expired)
+            self.status = JobStatus.TIMEOUT
+            self.exit_code = -1
+        finally:
+            self.finished_at = datetime.datetime.now()
+            os.remove(filename)
+        return self.status
+
+def is_complete(status: JobStatus):
+    if status == JobStatus.COMPLETE:
+        return True
+    else:
+        return False
+        
 class BashJob(Job):
     def __init__(self, language, script, retries):
         super().__init__(language, script, retries)
@@ -130,7 +159,7 @@ class BashJob(Job):
         super().__init__(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
 
     def run(self):
-        if self.status == JobStatus.COMPLETE:
+        if is_complete:
             return self.status
         self.status = JobStatus.IN_PROGRESS
         self.started_at = datetime.datetime.now()
