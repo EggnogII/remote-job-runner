@@ -33,8 +33,11 @@ def get_jobs():
 def get_job(job_id):
     key = job_id
     job_raw_data = redis_client.get(key)
-    job_data = json.loads(job_raw_data)
-    return jsonify(job_data), 200
+    if job_raw_data:
+        job_data = json.loads(job_raw_data)
+        return jsonify(job_data), 200
+    else:
+        return 'No job found', 404
 
 # Remember to add return code
 @app.route("/jobs", methods=['POST'])
