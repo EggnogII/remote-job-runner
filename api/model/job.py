@@ -61,7 +61,7 @@ def to_job(job_details):
         bash_job = BashJob.from_data(job_id, job_language, job_script, job_retries, job_status, job_creation_time, job_started_at, job_finished_at, job_exit_code, job_stdout, job_stderr)
         return_job = bash_job
     elif job_language == Language.PYTHON.name:
-        return_job = PythonJob(job_id, job_language, job_script, job_retries, job_status, job_creation_time, job_started_at, job_finished_at, job_exit_code, job_stdout, job_stderr)
+        return_job = PythonJob.from_data(job_id, job_language, job_script, job_retries, job_status, job_creation_time, job_started_at, job_finished_at, job_exit_code, job_stdout, job_stderr)
 
     return return_job, 200      
 
@@ -123,11 +123,13 @@ class Job(ABC):
         return dictionary_to_return
 class PythonJob(Job):
     def __init__(self, language, script, retries):
-        super().__init__(self, language, script, retries)
+        super().__init__(language, script, retries)
     
-    def __init__(self, id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr):
-        super().__init__(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
-    
+    @classmethod
+    def from_data(cls, id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr):
+        job = super().from_data(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
+        return job
+        
     def run(self):
         if is_complete:
             return self.status
@@ -169,7 +171,7 @@ class BashJob(Job):
     def from_data(cls, id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr):
         job = super().from_data(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
         return job
-        
+
     def run(self):
         if is_complete:
             return self.status
