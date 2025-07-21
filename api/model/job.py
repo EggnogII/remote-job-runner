@@ -9,9 +9,6 @@ from abc import ABC, abstractmethod
 
 
 # Some other stuff, we gotta incorporate multiple files for distinction in the module.
-# Also we need an interface, or some level of abstraction for the Job children
-# Implement PythonJob run function
-
 
 class JobStatus(Enum):
     QUEUED = 1
