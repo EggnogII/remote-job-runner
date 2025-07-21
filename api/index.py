@@ -15,7 +15,6 @@ def ping():
     return 'I am alive', 200
 
 # More context would be nice but w/e
-# Remember to add return code
 @app.route("/jobs")
 def get_jobs():
     keys = redis_client.keys()
