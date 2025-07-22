@@ -1,6 +1,7 @@
 import redis
 import json
 from flask import Flask, jsonify, request
+from rq import Queue
 from model.job import Language, JobStatus, to_request, to_job, BashJob, PythonJob
 from worker.worker import run_job
 
@@ -8,6 +9,7 @@ app = Flask(__name__)
 
 jobs = []
 redis_client = redis.Redis()
+redis_queue = Queue(connection=redis_client)
 
 # Make sure you don't forget, this needs to work with a worker agent, and needs logging functionality
 
@@ -38,6 +40,10 @@ def get_job(job_id):
         return jsonify(job_data), 200
     else:
         return 'No job found', 404
+
+@app.route("/enqueue", methods=['POST'])
+def enqueue_job():
+    pass
 
 # Remember to add return code
 @app.route("/jobs", methods=['POST'])
