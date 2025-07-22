@@ -33,7 +33,7 @@ def get_jobs():
 # Remember to add return code
 @app.route("/job/<job_id>", methods=['GET'])
 def get_job(job_id):
-    key = job_id
+    key = f"job:{job_id}"
     job_raw_data = redis_client.get(key)
     if job_raw_data:
         job_data = json.loads(job_raw_data)
@@ -43,24 +43,23 @@ def get_job(job_id):
 
 @app.route("/enqueue/<job_id>", methods=['GET'])
 def enqueue_job(job_id):
-    redis_queue.enqueue(run_job, job_id)
+    key = f"job:{job_id}"
+    redis_queue.enqueue(run_job, key)
     return 'Job enqueued', 200
     
-    
-
 # Remember to add return code
 @app.route("/jobs", methods=['POST'])
 def add_job():
     new_job = to_request(job_details=request.get_json())
     jobs.append(new_job)
-    redis_client.set(f"{new_job.id}", json.dumps(new_job.to_dict()))
+    redis_client.set(f"job:{new_job.id}", json.dumps(new_job.to_dict()))
     return f'created: {new_job.id}', 200
 
 # Add handling for if you don't find the job, e.g. 404
 # Remember to add return code
 @app.route("/execute/<job_id>", methods=['GET'])
 def execute_job(job_id):
-    key = job_id
+    key = f"job:{job_id}"
     job_raw_data = redis_client.get(key)
     if not job_raw_data:
         return f'not found: {job_id}', 404
@@ -86,7 +85,8 @@ def execute_job(job_id):
 
 @app.route("/status/<job_id>", methods=['GET'])
 def get_job_status(job_id):
-    job_raw_data = redis_client.get(job_id)
+    key = f"job:{job_id}"
+    job_raw_data = redis_client.get(key)
     if not job_raw_data:
         return f'not found: {job_id}', 404
 
@@ -99,7 +99,8 @@ def get_job_status(job_id):
 @app.route("/job/<job_id>", methods=['DELETE'])
 def delete_job(job_id):
     """Remove the job with the given ID from the data store."""
-    deleted = redis_client.delete(job_id)
+    key = f"job:{job_id}"
+    deleted = redis_client.delete(key)
     if deleted:
         return f'deleted: {job_id}', 200
     return f'not found: {job_id}', 404
