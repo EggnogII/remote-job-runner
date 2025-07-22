@@ -89,7 +89,7 @@ class Job(ABC):
         job_data.status = job_status
         job_data.created_at = job_creation_time
         job_data.started_at = job_start_time
-        job_data.end_time = job_end_time
+        job_data.finished_at = job_end_time
         job_data.exit_code = job_exit_code
         job_data.stdout = job_stdout
         job_data.stderr = job_stderr
@@ -115,14 +115,31 @@ class Job(ABC):
         elif eval_status == JobStatus.COMPLETE.name:
             job_data.status = JobStatus.COMPLETE
         elif eval_status == JobStatus.TIMEOUT.name:
-            job_data.status == JobStatus.TIMEOUT      
+            job_data.status = JobStatus.TIMEOUT
         else:
             job_data.status = None
         
         if job_data.status == None:
             raise KeyError(f"Nonvalid Job Status {eval_status}")
-        
-        # Finish this
+
+        date_time_format = "%Y-%m-%d %H:%M:%S.%f"
+        job_data.created_at = datetime.datetime.strptime(job_dict["created_at"], date_time_format)
+
+        if job_dict["started_at"] == "None":
+            job_data.started_at = None
+        else:
+            job_data.started_at = datetime.datetime.strptime(job_dict["started_at"], date_time_format)
+
+        if job_dict["finished_at"] == "None":
+            job_data.finished_at = None
+        else:
+            job_data.finished_at = datetime.datetime.strptime(job_dict["finished_at"], date_time_format)
+
+        job_data.exit_code = job_dict["exit_code"]
+        job_data.stdout = job_dict["stdout"]
+        job_data.stderr = job_dict["stderr"]
+
+        return job_data
 
         
 
@@ -156,7 +173,7 @@ class PythonJob(Job):
         return job
         
     def run(self):
-        if is_complete:
+        if is_complete(self.status):
             return self.status
         self.status = JobStatus.IN_PROGRESS
         self.started_at = datetime.datetime.now()
@@ -191,14 +208,18 @@ def is_complete(status: JobStatus):
 class BashJob(Job):
     def __init__(self, language, script, retries):
         super().__init__(language, script, retries)
-    
+
     @classmethod
     def from_data(cls, id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr):
         job = super().from_data(id, language, script, retries, status, creation_time, start_time, end_time, exit_code, stdout, stderr)
         return job
 
+    @classmethod
+    def from_dict(cls, job_dict):
+        return super().from_dict(job_dict)
+
     def run(self):
-        if is_complete:
+        if is_complete(self.status):
             return self.status
         self.status = JobStatus.IN_PROGRESS
         self.started_at = datetime.datetime.now()
