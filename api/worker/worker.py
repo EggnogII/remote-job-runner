@@ -12,8 +12,16 @@ def run_job(job_id):
     lang = job_data["language"].upper()
 
     if lang == Language.BASH.name:
-        print()
+        new_job = BashJob.from_dict(job_data)
     elif lang == Language.PYTHON.name:
-        print()
+        new_job = PythonJob.from_dict(job_data)
     else:
-        print()
+        new_job == None
+    
+    if not new_job:
+        raise KeyError("Unsupported Job Type")
+    
+    new_job.run()
+
+    redis_client.set(job_id, json.dumps(job.to_dict()))
+    return {"job_id": job_id, "status": new_job.status}
