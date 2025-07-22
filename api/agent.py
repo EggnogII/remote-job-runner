@@ -16,7 +16,7 @@ def run_job(job_id):
     elif lang == Language.PYTHON.name:
         new_job = PythonJob.from_dict(job_data)
     else:
-        new_job == None
+        new_job = None
     
     if not new_job:
         raise KeyError("Unsupported Job Type")

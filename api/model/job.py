@@ -38,7 +38,7 @@ def to_job(job_details):
     job_retries = job_details['retries']
     try:
         job_status = JobStatus[job_details['status']]
-    except k as KeyError:
+    except KeyError:
         return None, 500
     date_time_format = "%Y-%m-%d %H:%M:%S.%f"
     job_creation_time = datetime.datetime.strptime(job_details['created_at'], date_time_format)
