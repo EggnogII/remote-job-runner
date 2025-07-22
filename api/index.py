@@ -60,12 +60,20 @@ def add_job():
 # Remember to add return code
 @app.route("/execute/<job_id>", methods=['GET'])
 def execute_job(job_id):
-    return_code = 404
     key = job_id
     job_raw_data = redis_client.get(key)
+    if not job_raw_data:
+        return f'not found: {job_id}', 404
+
     job_data = json.loads(job_raw_data)
     job_obj, exit_code = to_job(job_data)
     state = job_obj.run()
+
+    # Persist the updated job data back into redis so status and other
+    # runtime details are available via the API
+    redis_client.set(key, json.dumps(job_obj.to_dict()))
+
+    return_code = 404
     if state == JobStatus.COMPLETE:
         return_code = 200
         return f'completed: {job_obj.id}', return_code
