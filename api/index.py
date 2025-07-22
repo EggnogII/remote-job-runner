@@ -3,7 +3,7 @@ import json
 from flask import Flask, jsonify, request
 from rq import Queue
 from model.job import Language, JobStatus, to_request, to_job, BashJob, PythonJob
-from worker.worker import run_job
+from agent import run_job
 
 app = Flask(__name__)
 
@@ -41,9 +41,12 @@ def get_job(job_id):
     else:
         return 'No job found', 404
 
-@app.route("/enqueue", methods=['POST'])
-def enqueue_job():
-    pass
+@app.route("/enqueue/<job_id>", methods=['GET'])
+def enqueue_job(job_id):
+    redis_queue.enqueue(run_job, job_id)
+    return 'Job enqueued', 200
+    
+    
 
 # Remember to add return code
 @app.route("/jobs", methods=['POST'])
