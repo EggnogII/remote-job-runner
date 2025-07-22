@@ -96,6 +96,34 @@ class Job(ABC):
 
         return job_data
 
+    @classmethod
+    def from_dict(cls, job_dict):
+        job_data = cls(
+            language=job_dict["language"],
+            script=job_dict["script"],
+            retries=job_dict["retries"]
+        )
+        job_data.id = job_dict["id"]
+        eval_status = job_dict["status"].upper()
+        
+        if eval_status == JobStatus.QUEUED.name:
+            job_data.status = JobStatus.QUEUED
+        elif eval_status == JobStatus.IN_PROGRESS.name:
+            job_data.status = JobStatus.IN_PROGRESS
+        elif eval_status == JobStatus.ERROR.name:
+            job_data.status = JobStatus.ERROR
+        elif eval_status == JobStatus.COMPLETE.name:
+            job_data.status = JobStatus.COMPLETE
+        elif eval_status == JobStatus.TIMEOUT.name:
+            job_data.status == JobStatus.TIMEOUT      
+        else:
+            job_data.status = None
+        
+        if job_data.status == None:
+            raise KeyError(f"Nonvalid Job Status {eval_status}")
+        
+        # Finish this
+
         
 
     @abstractmethod
