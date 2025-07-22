@@ -2,6 +2,7 @@ import redis
 import json
 from flask import Flask, jsonify, request
 from model.job import Language, JobStatus, to_request, to_job, BashJob, PythonJob
+from worker.worker import run_job
 
 app = Flask(__name__)
 
