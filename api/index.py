@@ -20,7 +20,7 @@ def ping():
 # More context would be nice but w/e
 @app.route("/jobs")
 def get_jobs():
-    keys = redis_client.keys()
+    keys = redis_client.keys("job:*")
     return_dict = {}
     for key in keys:
         job_raw_data = redis_client.get(key)
