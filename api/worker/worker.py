@@ -1,4 +1,4 @@
-from api.model.job import PythonJob, BashJob, Language
+from model.job import PythonJob, BashJob, Language
 import redis
 import json
 
