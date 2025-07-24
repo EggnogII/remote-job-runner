@@ -260,3 +260,6 @@ secrets.env
 .env
 .env.*
 .envrc
+auth.sh
+infra/.terraform.lock.hcl
+infra/dev.tfvars

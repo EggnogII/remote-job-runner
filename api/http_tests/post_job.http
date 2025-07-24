@@ -3,6 +3,6 @@ content-type:application/json
 
 {
     "language": "python",
-    "script": "print('hello world')",
+    "script": "fsadfasdfds",
     "retries": 2
 }
