@@ -260,3 +260,4 @@ secrets.env
 .env
 .env.*
 .envrc
+auth.sh
