@@ -1,5 +1,6 @@
 import redis
 import json
+import os
 from flask import Flask, jsonify, request
 from rq import Queue
 from model.job import Language, JobStatus, to_request, to_job, BashJob, PythonJob
@@ -7,9 +8,20 @@ from agent import run_job
 
 app = Flask(__name__)
 
-jobs = []
-redis_client = redis.Redis(port=6379)
+# Load Redis configuration from config.json
+config_path = os.path.join(os.path.dirname(__file__), "config.json")
+with open(config_path, "r") as cfg:
+    config = json.load(cfg)
+
+redis_client = redis.Redis(
+    host=config["redis_host"],
+    port=config["redis_port"],
+    db=config["redis_db"],
+    password=config["redis_password"]
+)
 redis_queue = Queue(connection=redis_client)
+
+jobs = []
 
 # Make sure you don't forget, this needs to work with a worker agent, and needs logging functionality
 
