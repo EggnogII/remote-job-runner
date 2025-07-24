@@ -261,3 +261,4 @@ secrets.env
 .env.*
 .envrc
 auth.sh
+infra/.terraform.lock.hcl
