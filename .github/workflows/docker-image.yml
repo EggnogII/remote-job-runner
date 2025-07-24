@@ -22,10 +22,10 @@ jobs:
     - name: Create JSON manifest
       run: |
            echo '{
-             "redis_host": "127.0.0.1",
-             "redis_port": 6379,
-             "redis_db": 0,
-             "redis_password": null
+             "redis_host": "${{ secrets.REDIS_SERVER_HOST}}",
+             "redis_port": ${{ vars.REDIS_PORT}},
+             "redis_db": ${{secrets.REDIS_DB}},
+             "redis_password": ${{secrets.REDIS_SERVER_PASSWORD}}
            }' > config.json
       working-directory: ./api
       shell: bash
