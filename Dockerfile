@@ -13,6 +13,6 @@ COPY . .
 
 RUN chmod +x bootstrap.sh
 
-EXPOSE 80
+EXPOSE 80 6379
 
 ENTRYPOINT ["bash", "./bootstrap.sh"]
