@@ -50,3 +50,6 @@ jobs:
     
     - name: Tag the image
       run: docker tag ${{env.DOCKER_IMAGE_NAME}}:latest ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{env.DOCKER_IMAGE_NAME}}-latest
+    
+    - name: Push the image to ECR
+      run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{env.DOCKER_IMAGE_NAME}}-latest
