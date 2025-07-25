@@ -29,3 +29,8 @@ jobs:
            }' > config.json
       working-directory: ./api
       shell: bash
+    
+    - name: Print Manifest
+      run: cat config.json
+      working-directory: ./api
+      shell: bash
