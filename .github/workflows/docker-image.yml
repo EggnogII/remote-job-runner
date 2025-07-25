@@ -44,3 +44,9 @@ jobs:
     - name: Login to ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Build the image
+      run: docker build . --file Dockerfile --tag ${{env.DOCKER_IMAGE_NAME}}:latest
+    
+    - name: Tag the image
+      run: docker tag ${{env.DOCKER_IMAGE_NAME}}:latest ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{env.DOCKER_IMAGE_NAME}}-latest
