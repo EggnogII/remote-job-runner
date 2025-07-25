@@ -1,10 +1,13 @@
-name: Docker Image CI
+name: Build and Publish REST API Docker image
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "dev" ]
+
+env:
+  DOCKER_IMAGE_NAME: remote-job-runner-api
+  ECR_REPO: eggnog-docker
+  AWS_REGION: us-west-2
 
 jobs:
 
@@ -13,6 +16,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Checkout repo 
+      uses: actions/checkout@v4
+
+    - name: Create JSON manifest
+      run: |
+           echo '{
+             "redis_host": "${{ secrets.REDIS_SERVER_HOST}}",
+             "redis_port": ${{ vars.REDIS_PORT}},
+             "redis_db": ${{secrets.REDIS_DB}},
+             "redis_password": ${{secrets.REDIS_SERVER_PASSWORD}}
+           }' > config.json
+      working-directory: ./api
+      shell: bash
+    
+    #- name: Print Manifest
+      #run: cat config.json
+      #working-directory: ./api
+      #shell: bash
+    - name: Configure AWS Creds
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{secrets.AWS_SECRET_ACCESS_KEY_ID}}
+        aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+        aws-region: ${{vars.AWS_REGION}}
+    
+    - name: Login to ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Build the image
+      run: docker build . --file Dockerfile --tag ${{env.DOCKER_IMAGE_NAME}}:latest
+    
+    - name: Tag the image
+      run: docker tag ${{env.DOCKER_IMAGE_NAME}}:latest ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{env.DOCKER_IMAGE_NAME}}-latest
+    
+    - name: Push the image to ECR
+      run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO }}:${{env.DOCKER_IMAGE_NAME}}-latest

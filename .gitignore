@@ -263,3 +263,4 @@ secrets.env
 auth.sh
 infra/.terraform.lock.hcl
 infra/dev.tfvars
+api/config.json
